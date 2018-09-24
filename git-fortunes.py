@@ -64,12 +64,14 @@ fortune_words = [Fortune(fortune, word_count(fortune)) for fortune in fortunes]
 
 time_me('Counted words')
 
+most_common = words.most_common(40)
+
 if arguments.debug:
     time_me(SUPPRESS)
     words_cmp = word_count(fortunes_src)
     time_me('Counted words full regex')
 
-    for match, count in words.most_common(40):
+    for match, count in most_common:
         print(match, ':', count, file=stderr)
 
 git_status = subprocess.run(['git', 'show', '--format=%B', '-s', 'HEAD'], stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, encoding='utf-8')
@@ -83,10 +85,16 @@ elif git_status.returncode != 0:
 else:
     input_count = word_count(git_status.stdout)
 
+relevant_keys = set(input_count.keys()) - set(m[0] for m in most_common)
+if arguments.debug:
+    print('Relevant words for matching:', relevant_keys, file=stderr)
+
 def score_fortune(fortune_count):
     # This is NOT a good textual comparison because it is based on absolute instead of relative occurance etc.
-    return sum(abs(fortune_count[w] - c) for w, c in input_count.items())
+    return sum(abs(fortune_count[w] - input_count[w]) for w in relevant_keys)
 
+time_me(SUPPRESS)
 best = min(fortune_words, key=lambda f: score_fortune(f.words))
+time_me('Scoring all fortune cookies')
 print(best.fortune)
 
