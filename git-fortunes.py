@@ -23,7 +23,8 @@ def read_fortunes(paths):
     return fortunes
 
 arguments = ArgumentParser(description='Find a fortune cookie matching some text')
-arguments.add_argument('--debug', action='store_true', default=False)
+arguments.add_argument('--debug', action='store_true', default=False, help='Enable performance and partial result debugging')
+arguments.add_argument('--stdin', action='store_true', default=False, help='Read match text from stdin instead of analyzing the git HEAD')
 arguments.add_argument('files', nargs='*', default=['fortunes-openbsd'])
 arguments = arguments.parse_args()
 
@@ -81,6 +82,8 @@ if git_status.returncode != 0 and not arguments.debug:
     exit(1)
 elif git_status.returncode != 0:
     print('Failed to query git commit info, falling back to stdin', file=stderr)
+    input_count = word_count(stdin.read())
+elif arguments.stdin:
     input_count = word_count(stdin.read())
 else:
     input_count = word_count(git_status.stdout)
