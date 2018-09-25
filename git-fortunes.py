@@ -19,7 +19,7 @@ def read_fortunes(paths):
     fortunes = []
     for path in paths:
         with open(path) as fortunes_file:
-            fortunes[-1:] = ['\n'.join(k) for s, k in groupby(fortunes_file, lambda l: l.startswith('%')) if not s]
+            fortunes[-1:] = [''.join(k) for s, k in groupby(fortunes_file, lambda l: l.startswith('%')) if not s]
     return fortunes
 
 arguments = ArgumentParser(description='Find a fortune cookie matching some text')
@@ -99,5 +99,5 @@ def score_fortune(fortune_count):
 time_me(SUPPRESS)
 best = min(fortune_words, key=lambda f: score_fortune(f.words))
 time_me('Scoring all fortune cookies')
-print(best.fortune)
+print(best.fortune, end='')
 
