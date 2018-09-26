@@ -25,7 +25,12 @@ def read_fortunes(paths):
     return fortunes
 
 def count_difference(fortune_count, text_count):
-    return 0 if fortune_count > text_count else text_count - fortune_count
+    if fortune_count > text_count:
+        return 1/(1 + fortune_count - text_count)
+    elif fortune_count == text_count:
+        return 0
+    else:  # fortune_count < text_count
+        return 1 + text_count - fortune_count
 
 def score_word(word, c1, c2):
     return count_difference(c1, c2)
