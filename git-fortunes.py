@@ -15,7 +15,7 @@ fortunes_path = join(dirname(__file__), 'fortunes-openbsd')
 
 def word_count(content):
     matches = re_words.finditer(content)
-    return Counter(map(lambda m: m[0], matches))
+    return Counter(map(lambda m: m[0].lower(), matches))
 
 def read_fortunes(paths):
     fortunes = []
@@ -24,9 +24,18 @@ def read_fortunes(paths):
             fortunes[-1:] = [''.join(k) for s, k in groupby(fortunes_file, lambda l: l.startswith('%')) if not s]
     return fortunes
 
+def score_fortune(fortune_count, input_count, relevant_keys):
+    # This is NOT a good textual comparison because it is based on absolute instead of relative occurance etc.
+    return sum(abs(fortune_count[w] - input_count[w]) for w in relevant_keys)
+
+def score_fortune_length(fortune_count, input_count, relevant_keys):
+    # Slightly better, considers text lengths but only on ties.
+    return (sum(abs(fortune_count[w] - input_count[w]) for w in relevant_keys), abs(len(fortune_count) - len(input_count)))
+
 arguments = ArgumentParser(description='Find a fortune cookie matching some text')
 arguments.add_argument('--debug', action='store_true', default=False, help='Enable performance and partial result debugging')
 arguments.add_argument('--stdin', action='store_true', default=False, help='Read match text from stdin instead of analyzing the git HEAD')
+arguments.add_argument('--words', dest='score', action='store_const', default=score_fortune, const=score_fortune_length, help='Best matching fortune is selected based on word counts')
 arguments.add_argument('files', nargs='*', default=[fortunes_path])
 arguments = arguments.parse_args()
 
@@ -94,10 +103,6 @@ relevant_keys = set(input_count.keys()) - set(m[0] for m in most_common)
 if arguments.debug:
     print('Relevant words for matching:', relevant_keys, file=stderr)
 
-def score_fortune(fortune_count):
-    # This is NOT a good textual comparison because it is based on absolute instead of relative occurance etc.
-    return sum(abs(fortune_count[w] - input_count[w]) for w in relevant_keys)
-
 def minlist(iterable, key=lambda x: x):
     iterable = iter(iterable)
     try:
@@ -118,7 +123,7 @@ def minlist(iterable, key=lambda x: x):
     return mins
 
 time_me(SUPPRESS)
-best = minlist(fortune_words, key=lambda f: score_fortune(f.words))
+best = minlist(fortune_words, key=lambda f: arguments.score(f.words, input_count, relevant_keys))
 time_me('Scoring all fortune cookies')
 
 selected = choice(best)
