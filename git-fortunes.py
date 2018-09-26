@@ -24,12 +24,15 @@ def read_fortunes(paths):
             fortunes[-1:] = [''.join(k) for s, k in groupby(fortunes_file, lambda l: l.startswith('%')) if not s]
     return fortunes
 
+def count_difference(fortune_count, text_count):
+    return 0 if fortune_count > text_count else text_count - fortune_count
+
 def score_word(word, c1, c2):
-    return abs(c1 - c2)
+    return count_difference(c1, c2)
 
 def score_word_length(word, c1, c2):
     # Missing or having too many of a long word is penalized by a higher weight
-    return (1 + abs(c1 - c2))*len(word)
+    return (1 + count_difference(c1, c2))*len(word)
 
 def score_fortune(fortune_count, input_count, relevant_keys, word_score):
     # This is NOT a good textual comparison because it is based on absolute instead of relative occurance etc.
