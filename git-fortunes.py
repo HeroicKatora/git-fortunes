@@ -5,6 +5,7 @@ import time
 from argparse import ArgumentParser
 from collections import Counter, namedtuple
 from itertools import chain, count, groupby
+from random import choice
 from os.path import dirname, join
 from sys import exit, stdin, stderr
 
@@ -97,8 +98,29 @@ def score_fortune(fortune_count):
     # This is NOT a good textual comparison because it is based on absolute instead of relative occurance etc.
     return sum(abs(fortune_count[w] - input_count[w]) for w in relevant_keys)
 
+def minlist(iterable, key=lambda x: x):
+    iterable = iter(iterable)
+    try:
+        first = next(iterable)
+        min_key, mins = key(first), [first]
+    except StopIteration:
+        return []
+
+    for n in iterable:
+        n_key = key(n)
+        if n_key > min_key:
+            continue
+        elif n_key == min_key:
+            mins.append(n)
+        else:
+            min_key, mins = n_key, [n]
+
+    return mins
+
 time_me(SUPPRESS)
-best = min(fortune_words, key=lambda f: score_fortune(f.words))
+best = minlist(fortune_words, key=lambda f: score_fortune(f.words))
 time_me('Scoring all fortune cookies')
-print(best.fortune, end='')
+
+selected = choice(best)
+print(selected.fortune, end='')
 
