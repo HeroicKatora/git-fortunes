@@ -24,18 +24,26 @@ def read_fortunes(paths):
             fortunes[-1:] = [''.join(k) for s, k in groupby(fortunes_file, lambda l: l.startswith('%')) if not s]
     return fortunes
 
-def score_fortune(fortune_count, input_count, relevant_keys):
-    # This is NOT a good textual comparison because it is based on absolute instead of relative occurance etc.
-    return sum(abs(fortune_count[w] - input_count[w]) for w in relevant_keys)
+def score_word(word, c1, c2):
+    return abs(c1 - c2)
 
-def score_fortune_length(fortune_count, input_count, relevant_keys):
+def score_word_length(word, c1, c2):
+    # Missing or having too many of a long word is penalized by a higher weight
+    return (1 + abs(c1 - c2))*len(word)
+
+def score_fortune(fortune_count, input_count, relevant_keys, word_score):
+    # This is NOT a good textual comparison because it is based on absolute instead of relative occurance etc.
+    return sum(word_score(w, fortune_count[w], input_count[w]) for w in relevant_keys)
+
+def score_fortune_length(fortune_count, input_count, relevant_keys, word_score):
     # Slightly better, considers text lengths but only on ties.
-    return (sum(abs(fortune_count[w] - input_count[w]) for w in relevant_keys), abs(len(fortune_count) - len(input_count)))
+    return (score_fortune(fortune_count, input_count, relevant_keys, word_score), abs(len(fortune_count) - len(input_count)))
 
 arguments = ArgumentParser(description='Find a fortune cookie matching some text')
 arguments.add_argument('--debug', action='store_true', default=False, help='Enable performance and partial result debugging')
 arguments.add_argument('--stdin', action='store_true', default=False, help='Read match text from stdin instead of analyzing the git HEAD')
 arguments.add_argument('--words', dest='score', action='store_const', default=score_fortune, const=score_fortune_length, help='Best matching fortune is selected based on word counts')
+arguments.add_argument('--word-lengths', dest='word_score', action='store_const', default=score_word, const=score_word_length, help='Matches of longer words are more influential')
 arguments.add_argument('files', nargs='*', default=[fortunes_path])
 arguments = arguments.parse_args()
 
@@ -123,7 +131,7 @@ def minlist(iterable, key=lambda x: x):
     return mins
 
 time_me(SUPPRESS)
-best = minlist(fortune_words, key=lambda f: arguments.score(f.words, input_count, relevant_keys))
+best = minlist(fortune_words, key=lambda f: arguments.score(f.words, input_count, relevant_keys, arguments.word_score))
 time_me('Scoring all fortune cookies')
 
 fortune = choice(best).fortune
