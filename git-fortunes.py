@@ -5,11 +5,12 @@ import time
 from argparse import ArgumentParser
 from collections import Counter, namedtuple
 from itertools import chain, count, groupby
+from os.path import dirname, join
 from sys import exit, stdin, stderr
 
 re_fortunes = re.compile('(^|\n%).*?(?=$|\n%)', re.S)
 re_words = re.compile('\\b\\w+\\b')
-fortunes_path = 'fortunes-openbsd'
+fortunes_path = join(dirname(__file__), 'fortunes-openbsd')
 
 def word_count(content):
     matches = re_words.finditer(content)
@@ -25,7 +26,7 @@ def read_fortunes(paths):
 arguments = ArgumentParser(description='Find a fortune cookie matching some text')
 arguments.add_argument('--debug', action='store_true', default=False, help='Enable performance and partial result debugging')
 arguments.add_argument('--stdin', action='store_true', default=False, help='Read match text from stdin instead of analyzing the git HEAD')
-arguments.add_argument('files', nargs='*', default=['fortunes-openbsd'])
+arguments.add_argument('files', nargs='*', default=[fortunes_path])
 arguments = arguments.parse_args()
 
 SUPPRESS = ()
