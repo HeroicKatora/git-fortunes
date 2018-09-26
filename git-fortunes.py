@@ -126,6 +126,9 @@ time_me(SUPPRESS)
 best = minlist(fortune_words, key=lambda f: arguments.score(f.words, input_count, relevant_keys))
 time_me('Scoring all fortune cookies')
 
-selected = choice(best)
-print(selected.fortune, end='')
+fortune = choice(best).fortune
+if arguments.debug:
+    for key in relevant_keys:
+        fortune = re.sub('\\b{}\\b'.format(key), lambda match: '\033[01;32m{}\033[00m'.format(match[0]), fortune, flags=re.IGNORECASE)
+print(fortune, end='')
 
