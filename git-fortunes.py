@@ -51,7 +51,8 @@ arguments = ArgumentParser(description='Find a fortune cookie matching some text
 arguments.add_argument('--debug', action='store_true', default=False, help='Enable performance and partial result debugging')
 arguments.add_argument('--stdin', action='store_true', default=False, help='Read match text from stdin instead of analyzing the git HEAD')
 arguments.add_argument('--words', dest='score', action='store_const', default=score_fortune, const=score_fortune_length, help='Best matching fortune is selected based on word counts')
-arguments.add_argument('--word-lengths', dest='word_score', action='store_const', default=score_word, const=score_word_length, help='Matches of longer words are more influential')
+arguments.add_argument('--word-lengths', dest='word_score', action='store_const', default=score_word_length, const=score_word_length, help='Matches of longer words are more influential')
+arguments.add_argument('--no-word-lengths', dest='word_score', action='store_const', const=score_word, help='Matches of longer words are NOT more influential')
 arguments.add_argument('files', nargs='*', default=[fortunes_path])
 arguments = arguments.parse_args()
 
