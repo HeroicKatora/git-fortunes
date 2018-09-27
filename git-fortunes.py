@@ -53,7 +53,7 @@ arguments.add_argument('--stdin', action='store_true', default=False, help='Read
 arguments.add_argument('--words', dest='score', action='store_const', default=score_fortune, const=score_fortune_length, help='Best matching fortune is selected based on word counts')
 arguments.add_argument('--word-lengths', dest='word_score', action='store_const', default=score_word_length, const=score_word_length, help='Matches of longer words are more influential')
 arguments.add_argument('--no-word-lengths', dest='word_score', action='store_const', const=score_word, help='Matches of longer words are NOT more influential')
-arguments.add_argument('files', nargs='*', default=[fortunes_path])
+arguments.add_argument('files', nargs='*', default=[fortunes_path], help='Fortune files in the freebsd format, with separating \'%%\' lines')
 arguments = arguments.parse_args()
 
 SUPPRESS = ()
@@ -93,7 +93,7 @@ fortune_words = [Fortune(fortune, word_count(fortune)) for fortune in fortunes]
 
 time_me('Counted words')
 
-most_common = words.most_common(40)
+most_common = words.most_common(80)
 
 if arguments.debug:
     time_me(SUPPRESS)
