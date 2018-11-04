@@ -1,4 +1,4 @@
-#/usr/bin/python3
+#!/usr/bin/python3
 import re
 import subprocess
 import time
@@ -6,12 +6,12 @@ from argparse import ArgumentParser
 from collections import Counter, namedtuple
 from itertools import chain, count, groupby
 from random import choice
-from os.path import dirname, join
+from os.path import dirname, join, realpath
 from sys import exit, stdin, stderr
 
 re_fortunes = re.compile('(^|\n%).*?(?=$|\n%)', re.S)
 re_words = re.compile('\\b\\w+\\b')
-fortunes_path = join(dirname(__file__), 'fortunes-openbsd')
+fortunes_path = join(dirname(realpath(__file__)), 'fortunes-openbsd')
 
 def word_count(content):
     matches = re_words.finditer(content)
