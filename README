@@ -29,3 +29,15 @@ optional arguments:
   --word-lengths     Matches of longer words are more influential
   --no-word-lengths  Matches of longer words are NOT more influential
 ```
+
+## Additional information
+
+You can use this command directly as a git subcommand by making it available as
+an executable on your PATH.  
+    
+```bash
+$ export PATH="$PATH:~/bin/"
+$ ln -s "$(realpath ./git-fortune.py)" ~/bin/git-fortune
+$ git fortune
+```
+
